@@ -13,7 +13,7 @@ def hello():
     return "Hello World"
 
 #Show Ibovespa points
-@app.route('/points/ibovespa')
+@app.route('/ibovespa/points')
 def showIbovespaPoints():
     return jsonify(getCompanyPointsFromAPI("^BVSP"))
 
@@ -31,20 +31,28 @@ def showPointsForCompany(companyName):
 
 
 def getCompanyPointsFromAPI(companyName):
+    messageReturn = {}
     #call to URL API
     url = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol="+companyName+"&apikey=" + ALPHA_VANTAGE_KEY + ""
     #Getting the values from API
     apiRequest = requests.get(url)
     #Check if has an error
     if(apiRequest.status_code != 200):
-        return { "status" : apiRequest.status_code, "message": "Something went wrong" }
-    #Parse data to python object
-    response = json.loads(apiRequest.content)
-    if response['Error Message']:
-        return { "status" : 204, "massage": "You need to inform a valid company code to access this resource" }
-    #Getting the last value of Ibovespa
-    currentPoints = response['Global Quote']['05. price']
-    return { "status" : apiRequest.status_code, "current_points": currentPoints }
+        messageReturn =  { "status" : apiRequest.status_code, "message": "Something went wrong" }
+    else:
+        #Parse data to python object
+        response = json.loads(apiRequest.content)
+        if 'Error Message' in response:
+            messageReturn =  { "status" : 204, "message": "You need to inform a valid company code to access this resource" }
+        #Check if has a result
+        elif not 'Global Quote' in response:
+            messageReturn =  { "status" : 503, "message": "Something went wrong" }
+        #Getting the last value of Ibovespa
+        else:
+            currentPoints = response['Global Quote']['05. price']
+            messageReturn = { "status" : apiRequest.status_code, "current_points": currentPoints }
+
+    return messageReturn
 
     
 if __name__ == "__main__":
