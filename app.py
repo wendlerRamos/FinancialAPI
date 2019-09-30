@@ -20,9 +20,8 @@ def showIbovespaPoints():
 #Show Ibovespa points
 @app.route('/points/<companyName>')
 def showPointsForCompany(companyName):
-    #companyName = request.args['company']
     if not companyName:
-        return {"status": 404, "message": "You need to inform a valid company code to access this resource"}
+        return jsonify({"status": 404, "message": "You need to inform a valid company code to access this resource"})
     return jsonify(getCompanyPointsFromAPI(companyName))
 
 
