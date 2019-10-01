@@ -1,9 +1,16 @@
 from flask import Flask, escape, request, json, jsonify
 import requests
 from datetime import date
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'TestetyEst373573'
+
+app.config.from_object(os.environ['APP_SETTINGS'])
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+from models import User
 
 #Set the Alpha Vantage API KEY
 ALPHA_VANTAGE_KEY = 'PE3J13GZ7V9GOPKO'
@@ -55,4 +62,4 @@ def getCompanyPointsFromAPI(companyName):
 
     
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=True)
+    app.run(debug=True, use_reloader=True) 
