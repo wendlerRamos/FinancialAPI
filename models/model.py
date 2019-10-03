@@ -26,7 +26,7 @@ class CompanyValue(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     id_company = db.Column(db.Integer())
-    market_points = db.Column(db.float())
+    market_points = db.Column(db.Float(12,6))
 
     def __init__(self, id_company, market_points):
         self.name = name
