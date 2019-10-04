@@ -42,7 +42,7 @@ def showPointsForCompany(companyName):
 # Routes from User management
 #
 @app.route("/user/add", methods=['POST'])
-def add_book():
+def addUser():
     name=request.form.get('name')
     company=request.form.get('company')
     document=request.form.get('document')
@@ -60,24 +60,24 @@ def add_book():
         db.session.commit()
         return "User registered successfully with id={}".format(user.id)
     except Exception as e:
-	    return(str(e))
+	    return("Ops, something went wrong, please try again later !")
 
 
 @app.route("/users/all")
-def get_all():
+def getAllUsers():
     try:
         users=model.User.query.all()
         return  jsonify([e.serializeWithoutPassword() for e in users])
     except Exception as e:
-	    return(str(e))
+	    return("Ops, something went wrong, please try again later !")
 
 @app.route("/user/get/<id_>")
-def get_by_id(id_):
+def getUserById(id_):
     try:
         user=model.User.query.filter_by(id=id_).first()
         return jsonify(user.serializeWithoutPassword())
     except Exception as e:
-	    return(str(e))
+	    return("Ops, something went wrong, please try again later !")
 
 @app.route("/user/update" , methods=['PUT'])
 def updateUser():
@@ -95,7 +95,7 @@ def updateUser():
         db.session.commit()
         return "User updated successfully !"
     except Exception as e:
-	    return(str(e))
+	    return("Ops, something went wrong, please try again later !")
 
 @app.route("/user/delete", methods=['DELETE'])
 def deleteUser():
@@ -106,10 +106,13 @@ def deleteUser():
         db.session.commit()
         return "User removed successfully"
     except Exception as e:
-        return (str(e))
+	    return("Ops, something went wrong, please try again later !")
 
-#---------------------------------------#
 
+
+#
+#--------------------------------------------------------------------------------------------#
+#
 
 def getCompanyPointsFromAPI(companyName):
     messageReturn = {}
