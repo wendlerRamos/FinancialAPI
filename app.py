@@ -13,7 +13,7 @@ import os
 app = Flask(__name__)
 #app.config['SECRET_KEY'] = 'TestetyEst373573'
 
-#app.config.from_object(os.environ['APP_SETTINGS'])
+app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -37,6 +37,8 @@ def showPointsForCompany(companyName):
     if not companyName:
         return jsonify({"status": 404, "message": "You need to inform a valid company code to access this resource"})
     return jsonify(getCompanyPointsFromAPI(companyName))
+
+
 
 
 
