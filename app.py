@@ -71,7 +71,13 @@ def get_all():
     except Exception as e:
 	    return(str(e))
 
-
+@app.route("/user/get/<id_>")
+def get_by_id(id_):
+    try:
+        user=model.User.query.filter_by(id=id_).first()
+        return jsonify(user.serializeWithoutPassword())
+    except Exception as e:
+	    return(str(e))
 
 
 #---------------------------------------#
