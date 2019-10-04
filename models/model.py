@@ -52,11 +52,15 @@ class User(db.Model):
     name = db.Column(db.String())
     company = db.Column(db.String())
     document = db.Column(db.String())
+    username = db.Column(db.String())
+    password = db.Column(db.String())
 
-    def __init__(self, name, company, document):
+    def __init__(self, name, company, document, username, password):
         self.name = name
         self.company = company
         self.document = document
+        self.username = username
+        self.password = password
 
     def __repr__(self):
         return '<id {}>'.format(self.id)
@@ -66,5 +70,7 @@ class User(db.Model):
             'id': self.id, 
             'name': self.name,
             'company': self.company,
-            'document':self.document
+            'document':self.document,
+            'username':self.username,
+            'password':self.password
         }

@@ -38,6 +38,29 @@ def showPointsForCompany(companyName):
         return jsonify({"status": 404, "message": "You need to inform a valid company code to access this resource"})
     return jsonify(getCompanyPointsFromAPI(companyName))
 
+#
+# Routes from User management
+#
+@app.route("/user/add", methods=['POST'])
+def add_book():
+    name=request.form.get('name')
+    company=request.form.get('company')
+    document=request.form.get('document')
+    username=request.form.get('username')
+    password=request.form.get('password')
+    try:
+        user=model.User(
+            name=name,
+            company=company,
+            document=document,
+            username=username,
+            password=password
+        )
+        db.session.add(user)
+        db.session.commit()
+        return "User registered successfully with id={}".format(user.id)
+    except Exception as e:
+	    return(str(e))
 
 
 
