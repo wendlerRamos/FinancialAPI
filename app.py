@@ -111,6 +111,66 @@ def deleteUser():
 
 
 #
+# Routes from Company management
+#
+@app.route("/company/add", methods=['POST'])
+def addCompany():
+    name=request.form.get('name')
+    financial_code=request.form.get('financialCode')
+    try:
+        company=model.Company(
+            name=name,
+            financial_code=financial_code
+        )
+        db.session.add(company)
+        db.session.commit()
+        return "Company registered successfully with id={}".format(company.id)
+    except Exception as e:
+	    return("Ops, something went wrong, please try again later !")
+
+
+@app.route("/companies/all")
+def getAllCompanies():
+    try:
+        companies=model.Company.query.all()
+        return  jsonify([e.serialize() for e in companies])
+    except Exception as e:
+	    return("Ops, something went wrong, please try again later !")
+
+@app.route("/company/get/<id_>")
+def getCompanyById(id_):
+    try:
+        company=model.Company.query.filter_by(id=id_).first()
+        return jsonify(company.serialize())
+    except Exception as e:
+	    return("Ops, something went wrong, please try again later !")
+
+@app.route("/company/update" , methods=['PUT'])
+def updateCompany():
+    id_ = request.form.get('id')
+    name=request.form.get('name')
+    financial_code=request.form.get('financial_code')
+    try:
+        company=model.Company.query.filter_by(id=id_).first()
+        company.name = name
+        company.financial_code = financial_code
+        db.session.commit()
+        return "Company updated successfully !"
+    except Exception as e:
+	    return("Ops, something went wrong, please try again later !")
+
+@app.route("/company/delete", methods=['DELETE'])
+def deleteCopmpany():
+    id_ = request.form.get('id')
+    try:
+        company=model.Company.query.filter_by(id=id_).first()
+        db.session.delete(company)
+        db.session.commit()
+        return "Company removed successfully"
+    except Exception as e:
+	    return("Ops, something went wrong, please try again later !")
+
+#
 #--------------------------------------------------------------------------------------------#
 #
 
