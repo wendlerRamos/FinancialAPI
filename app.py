@@ -170,6 +170,63 @@ def deleteCopmpany():
     except Exception as e:
 	    return("Ops, something went wrong, please try again later !")
 
+
+#
+# Routes from Company Points management
+#
+@app.route("/company/value/add", methods=['POST'])
+def addCompanyValue():
+    id_company=request.form.get('id_company')
+    try:
+        companyValue=model.CompanyValue(
+            id_company=id_company,
+            market_points=0
+        )
+        db.session.add(companyValue)
+        db.session.commit()
+        return "Company points registered successfully with id={}".format(companyValue.id)
+    except Exception as e:
+	    return("Ops, something went wrong, please try again later !")
+
+
+@app.route("/companies/values/all")
+def getAllCompaniesValues():
+    try:
+        companiesValues=model.CompanyValue.query.all()
+        return  jsonify([e.serialize() for e in companiesValues])
+    except Exception as e:
+	    return("Ops, something went wrong, please try again later !")
+
+@app.route("/company/value/get/<id_>")
+def getCompanyValueById(id_):
+    try:
+        company=model.Company.query.filter_by(id=id_).first()
+        return jsonify(company.serialize())
+    except Exception as e:
+	    return("Ops, something went wrong, please try again later !")
+
+@app.route("/company/value/update" , methods=['PUT'])
+def updateCompanyValue():
+    id_ = request.form.get('id')
+    market_points=request.form.get('marketPoints')
+    try:
+        companyValue=model.CompanyValue.query.filter_by(id=id_).first()
+        companyValue.marketPoints = market_points
+        db.session.commit()
+        return "Company points updated successfully !"
+    except Exception as e:
+	    return("Ops, something went wrong, please try again later !")
+
+@app.route("/company/value/delete", methods=['DELETE'])
+def deleteCompanyValue():
+    id_ = request.form.get('id')
+    try:
+        companyValue=model.CompanyValue.query.filter_by(id=id_).first()
+        db.session.delete(companyValue)
+        db.session.commit()
+        return "Company value removed successfully"
+    except Exception as e:
+	    return("Ops, something went wrong, please try again later !")
 #
 #--------------------------------------------------------------------------------------------#
 #
