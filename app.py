@@ -79,7 +79,23 @@ def get_by_id(id_):
     except Exception as e:
 	    return(str(e))
 
-
+@app.route("/user/update" , methods=['PUT'])
+def updateUser():
+    id_ = request.form.get('id')
+    name=request.form.get('name')
+    company=request.form.get('company')
+    document=request.form.get('document')
+    password=request.form.get('password')
+    try:
+        user=model.User.query.filter_by(id=id_).first()
+        user.name = name
+        user.company = company
+        user.document = document
+        user.password = password
+        db.session.commit()
+        return "User updated successfully !"
+    except Exception as e:
+	    return(str(e))
 #---------------------------------------#
 
 
