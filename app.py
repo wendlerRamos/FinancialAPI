@@ -96,6 +96,18 @@ def updateUser():
         return "User updated successfully !"
     except Exception as e:
 	    return(str(e))
+
+@app.route("/user/delete", methods=['DELETE'])
+def deleteUser():
+    id_ = request.form.get('id')
+    try:
+        user=model.User.query.filter_by(id=id_).first()
+        db.session.delete(user)
+        db.session.commit()
+        return "User removed successfully"
+    except Exception as e:
+        return (str(e))
+
 #---------------------------------------#
 
 
