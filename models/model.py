@@ -74,3 +74,10 @@ class User(db.Model):
             'username':self.username,
             'password':self.password
         }
+    def serializeWithoutPassword(self):
+            return {
+            'id': self.id, 
+            'name': self.name,
+            'company': self.company,
+            'document':self.document,
+        }

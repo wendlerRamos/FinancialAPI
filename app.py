@@ -63,6 +63,15 @@ def add_book():
 	    return(str(e))
 
 
+@app.route("/users/all")
+def get_all():
+    try:
+        users=model.User.query.all()
+        return  jsonify([e.serializeWithoutPassword() for e in users])
+    except Exception as e:
+	    return(str(e))
+
+
 
 
 #---------------------------------------#
