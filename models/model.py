@@ -39,7 +39,7 @@ class CompanyValue(db.Model):
         return {
             'id': self.id, 
             'id_company': self.id_company,
-            'market_points': self.market_points,
+            'market_points': str(self.market_points),
         }
 
 

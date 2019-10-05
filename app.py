@@ -215,8 +215,7 @@ def setCompanyValue():
             db.session.commit()
             return "Company points updated successfully !"
     except Exception as e:
-	    return str(e)
-        #return("Ops, something went wrong, please try again later !")
+        return("Ops, something went wrong, please try again later !")
 
 
 @app.route("/companies/values/all")
