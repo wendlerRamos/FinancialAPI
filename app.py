@@ -48,6 +48,8 @@ def addUser():
     document=request.form.get('document')
     username=request.form.get('username')
     password=request.form.get('password')
+    if not checkIfCompanyExistsById(company):
+        return "Company id is not valid !"
     try:
         user=model.User(
             name=name,
@@ -86,6 +88,8 @@ def updateUser():
     company=request.form.get('company')
     document=request.form.get('document')
     password=request.form.get('password')
+    if not checkIfCompanyExistsById(company):
+        return "Company id is not valid !"
     try:
         user=model.User.query.filter_by(id=id_).first()
         user.name = name
@@ -117,6 +121,8 @@ def deleteUser():
 def addCompany():
     name=request.form.get('name')
     financial_code=request.form.get('financialCode')
+    if checkIfCompanyExistsByFinancialCode(financial_code):
+        return "This financial code already exists in our database !"
     try:
         company=model.Company(
             name=name,
@@ -141,6 +147,8 @@ def getAllCompanies():
 def getCompanyById(id_):
     try:
         company=model.Company.query.filter_by(id=id_).first()
+        if company is None:
+            return "No company finds"
         return jsonify(company.serialize())
     except Exception as e:
 	    return("Ops, something went wrong, please try again later !")
@@ -149,10 +157,12 @@ def getCompanyById(id_):
 def updateCompany():
     id_ = request.form.get('id')
     name=request.form.get('name')
-    financial_code=request.form.get('financial_code')
+    financial_code=request.form.get('financialCode')
     try:
         company=model.Company.query.filter_by(id=id_).first()
         company.name = name
+        if company.financial_code != financial_code and checkIfCompanyExistsByFinancialCode(financial_code):
+            return "This financial code already exists on our database"
         company.financial_code = financial_code
         db.session.commit()
         return "Company updated successfully !"
@@ -174,19 +184,39 @@ def deleteCopmpany():
 #
 # Routes from Company Points management
 #
-@app.route("/company/value/add", methods=['POST'])
-def addCompanyValue():
-    id_company=request.form.get('id_company')
+@app.route("/company/value/set", methods=['POST'])
+#Add or update the company points
+def setCompanyValue():
+    id_company_=request.form.get('id_company')
     try:
-        companyValue=model.CompanyValue(
-            id_company=id_company,
-            market_points=0
-        )
-        db.session.add(companyValue)
-        db.session.commit()
-        return "Company points registered successfully with id={}".format(companyValue.id)
+        company=model.Company.query.filter_by(id=id_company_).first()
+        #Check if company exists on  database
+        if company is None:
+            return "No company finds"
+        #getting the points from API
+        companyPoints = getCompanyPointsFromAPI(str(company.financial_code))
+        #Verify if return points
+        if not 'current_points' in companyPoints:
+            return "We can't find the points from this company"
+
+        #Getting company value from DB
+        companyValueDB = model.CompanyValue.query.filter_by(id_company=id_company_)
+        if companyValueDB.first() is None: #Add company value to database
+            companyValue=model.CompanyValue(
+                id_company=id_company_,
+                market_points=companyPoints['current_points']
+            )
+            db.session.add(companyValue)
+            db.session.commit()
+            return "Company points registered successfully, current points to this company: {}".format(companyValue.market_points)
+        else: #Update company value on database
+            companyValueDB = companyValueDB.first()
+            companyValueDB.market_points = companyPoints['current_points']
+            db.session.commit()
+            return "Company points updated successfully !"
     except Exception as e:
-	    return("Ops, something went wrong, please try again later !")
+	    return str(e)
+        #return("Ops, something went wrong, please try again later !")
 
 
 @app.route("/companies/values/all")
@@ -211,7 +241,7 @@ def updateCompanyValue():
     market_points=request.form.get('marketPoints')
     try:
         companyValue=model.CompanyValue.query.filter_by(id=id_).first()
-        companyValue.marketPoints = market_points
+        companyValue.market_points = market_points
         db.session.commit()
         return "Company points updated successfully !"
     except Exception as e:
@@ -255,6 +285,23 @@ def getCompanyPointsFromAPI(companyName):
 
     return messageReturn
 
+def checkIfCompanyExistsById(idCompany):
+    try:
+        company=model.Company.query.filter_by(id=idCompany).first()
+        if company is None:
+            return False
+        return True
+    except Exception as e:
+	    return False
+
+def checkIfCompanyExistsByFinancialCode(financialCode):
+    try:
+        company=model.Company.query.filter_by(financial_code=financialCode).first()
+        if company is None:
+            return False
+        return True
+    except Exception as e:
+	    return False
     
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=True) 

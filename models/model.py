@@ -29,7 +29,6 @@ class CompanyValue(db.Model):
     market_points = db.Column(db.Float(12,6))
 
     def __init__(self, id_company, market_points):
-        self.name = name
         self.id_company = id_company
         self.market_points = market_points
 
