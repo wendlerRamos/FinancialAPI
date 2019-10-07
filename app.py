@@ -5,13 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 
 
-# pip install flask_sqlalchemy
-# pip install flask_script    
-# pip install flask_migrate   
-# pip install psycopg2-binary 
-
 app = Flask(__name__)
-#app.config['SECRET_KEY'] = 'TestetyEst373573'
 
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -226,23 +220,11 @@ def getAllCompaniesValues():
     except Exception as e:
 	    return("Ops, something went wrong, please try again later !")
 
-@app.route("/company/value/get/<id_>")
-def getCompanyValueById(id_):
+@app.route("/company/value/get/<id_company_>")
+def getCompanyValueById(id_company_):
     try:
-        company=model.Company.query.filter_by(id=id_).first()
+        company=model.CompanyValue.query.filter_by(id_company=id_company_).first()
         return jsonify(company.serialize())
-    except Exception as e:
-	    return("Ops, something went wrong, please try again later !")
-
-@app.route("/company/value/update" , methods=['PUT'])
-def updateCompanyValue():
-    id_ = request.form.get('id')
-    market_points=request.form.get('marketPoints')
-    try:
-        companyValue=model.CompanyValue.query.filter_by(id=id_).first()
-        companyValue.market_points = market_points
-        db.session.commit()
-        return "Company points updated successfully !"
     except Exception as e:
 	    return("Ops, something went wrong, please try again later !")
 
