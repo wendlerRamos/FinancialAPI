@@ -42,6 +42,9 @@ def addUser():
     document=request.form.get('document')
     username=request.form.get('username')
     password=request.form.get('password')
+    #check if request has all attributes
+    if not name or not company or not document or not username or not password:
+        return "Please, inform all required informations to continue"
     if not checkIfCompanyExistsById(company):
         return "Company id is not valid !"
     try:
@@ -82,14 +85,19 @@ def updateUser():
     company=request.form.get('company')
     document=request.form.get('document')
     password=request.form.get('password')
-    if not checkIfCompanyExistsById(company):
+
+    if not id_ or not checkIfCompanyExistsById(company):
         return "Company id is not valid !"
     try:
         user=model.User.query.filter_by(id=id_).first()
-        user.name = name
-        user.company = company
-        user.document = document
-        user.password = password
+        if name:
+            user.name = name
+        if company:
+            user.company = company
+        if document:
+            user.document = document
+        if password:
+            user.password = password
         db.session.commit()
         return "User updated successfully !"
     except Exception as e:
@@ -98,6 +106,8 @@ def updateUser():
 @app.route("/user/delete", methods=['DELETE'])
 def deleteUser():
     id_ = request.form.get('id')
+    if not _id:
+        return "Please, inform all required informations to continue"
     try:
         user=model.User.query.filter_by(id=id_).first()
         db.session.delete(user)
@@ -115,6 +125,8 @@ def deleteUser():
 def addCompany():
     name=request.form.get('name')
     financial_code=request.form.get('financialCode')
+    if not name or not financial_code:
+        return "Please, inform all required informations to continue"
     if checkIfCompanyExistsByFinancialCode(financial_code):
         return "This financial code already exists in our database !"
     try:
@@ -152,12 +164,16 @@ def updateCompany():
     id_ = request.form.get('id')
     name=request.form.get('name')
     financial_code=request.form.get('financialCode')
+    if not id_:
+        return "Please, inform all required informations to continue"
     try:
         company=model.Company.query.filter_by(id=id_).first()
-        company.name = name
         if company.financial_code != financial_code and checkIfCompanyExistsByFinancialCode(financial_code):
             return "This financial code already exists on our database"
-        company.financial_code = financial_code
+        if name:
+            company.name = name
+        if financial_code:
+            company.financial_code = financial_code
         db.session.commit()
         return "Company updated successfully !"
     except Exception as e:
@@ -166,6 +182,8 @@ def updateCompany():
 @app.route("/company/delete", methods=['DELETE'])
 def deleteCopmpany():
     id_ = request.form.get('id')
+    if not id_:
+        return "Please, inform all required informations to continue"
     try:
         company=model.Company.query.filter_by(id=id_).first()
         db.session.delete(company)
@@ -182,6 +200,8 @@ def deleteCopmpany():
 #Add or update the company points
 def setCompanyValue():
     id_company_=request.form.get('id_company')
+    if not id_company:
+        return "Please, inform all required informations to continue"
     try:
         company=model.Company.query.filter_by(id=id_company_).first()
         #Check if company exists on  database
@@ -231,6 +251,8 @@ def getCompanyValueById(id_company_):
 @app.route("/company/value/delete", methods=['DELETE'])
 def deleteCompanyValue():
     id_ = request.form.get('id')
+    if not id_:
+        return "Please, inform all required informations to continue"
     try:
         companyValue=model.CompanyValue.query.filter_by(id=id_).first()
         db.session.delete(companyValue)
@@ -283,6 +305,6 @@ def checkIfCompanyExistsByFinancialCode(financialCode):
         return True
     except Exception as e:
 	    return False
-    
+
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=True) 
+    app.run(debug=True, use_reloader=True)
