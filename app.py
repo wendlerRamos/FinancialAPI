@@ -11,7 +11,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-from models import model
+from models import user, company, companyValue
 
 #Set the Alpha Vantage API KEY
 ALPHA_VANTAGE_KEY = 'PE3J13GZ7V9GOPKO'
@@ -48,7 +48,7 @@ def addUser():
     if not checkIfCompanyExistsById(company):
         return "Company id is not valid !"
     try:
-        user=model.User(
+        user=user.User(
             name=name,
             company=company,
             document=document,
@@ -65,7 +65,7 @@ def addUser():
 @app.route("/users/all")
 def getAllUsers():
     try:
-        users=model.User.query.all()
+        users=user.User.query.all()
         return  jsonify([e.serializeWithoutPassword() for e in users])
     except Exception as e:
 	    return("Ops, something went wrong, please try again later !")
@@ -73,7 +73,7 @@ def getAllUsers():
 @app.route("/user/get/<id_>")
 def getUserById(id_):
     try:
-        user=model.User.query.filter_by(id=id_).first()
+        user=user.User.query.filter_by(id=id_).first()
         return jsonify(user.serializeWithoutPassword())
     except Exception as e:
 	    return("Ops, something went wrong, please try again later !")
@@ -89,7 +89,7 @@ def updateUser():
     if not id_ or not checkIfCompanyExistsById(company):
         return "Company id is not valid !"
     try:
-        user=model.User.query.filter_by(id=id_).first()
+        user=user.User.query.filter_by(id=id_).first()
         if name:
             user.name = name
         if company:
@@ -109,7 +109,7 @@ def deleteUser():
     if not _id:
         return "Please, inform all required informations to continue"
     try:
-        user=model.User.query.filter_by(id=id_).first()
+        user=user.User.query.filter_by(id=id_).first()
         db.session.delete(user)
         db.session.commit()
         return "User removed successfully"
@@ -130,7 +130,7 @@ def addCompany():
     if checkIfCompanyExistsByFinancialCode(financial_code):
         return "This financial code already exists in our database !"
     try:
-        company=model.Company(
+        company=company.Company(
             name=name,
             financial_code=financial_code
         )
@@ -144,7 +144,7 @@ def addCompany():
 @app.route("/companies/all")
 def getAllCompanies():
     try:
-        companies=model.Company.query.all()
+        companies=company.Company.query.all()
         return  jsonify([e.serialize() for e in companies])
     except Exception as e:
 	    return("Ops, something went wrong, please try again later !")
@@ -152,7 +152,7 @@ def getAllCompanies():
 @app.route("/company/get/<id_>")
 def getCompanyById(id_):
     try:
-        company=model.Company.query.filter_by(id=id_).first()
+        company=company.Company.query.filter_by(id=id_).first()
         if company is None:
             return "No company finds"
         return jsonify(company.serialize())
@@ -167,7 +167,7 @@ def updateCompany():
     if not id_:
         return "Please, inform all required informations to continue"
     try:
-        company=model.Company.query.filter_by(id=id_).first()
+        company=company.Company.query.filter_by(id=id_).first()
         if company.financial_code != financial_code and checkIfCompanyExistsByFinancialCode(financial_code):
             return "This financial code already exists on our database"
         if name:
@@ -185,7 +185,7 @@ def deleteCopmpany():
     if not id_:
         return "Please, inform all required informations to continue"
     try:
-        company=model.Company.query.filter_by(id=id_).first()
+        company=company.Company.query.filter_by(id=id_).first()
         db.session.delete(company)
         db.session.commit()
         return "Company removed successfully"
@@ -203,7 +203,7 @@ def setCompanyValue():
     if not id_company:
         return "Please, inform all required informations to continue"
     try:
-        company=model.Company.query.filter_by(id=id_company_).first()
+        company=company.Company.query.filter_by(id=id_company_).first()
         #Check if company exists on  database
         if company is None:
             return "No company finds"
@@ -214,9 +214,9 @@ def setCompanyValue():
             return "We can't find the points from this company"
 
         #Getting company value from DB
-        companyValueDB = model.CompanyValue.query.filter_by(id_company=id_company_)
+        companyValueDB = companyValue.CompanyValue.query.filter_by(id_company=id_company_)
         if companyValueDB.first() is None: #Add company value to database
-            companyValue=model.CompanyValue(
+            companyValue=companyValue.CompanyValue(
                 id_company=id_company_,
                 market_points=companyPoints['current_points']
             )
@@ -235,7 +235,7 @@ def setCompanyValue():
 @app.route("/companies/values/all")
 def getAllCompaniesValues():
     try:
-        companiesValues=model.CompanyValue.query.all()
+        companiesValues=companyValue.CompanyValue.query.all()
         return  jsonify([e.serialize() for e in companiesValues])
     except Exception as e:
 	    return("Ops, something went wrong, please try again later !")
@@ -243,7 +243,7 @@ def getAllCompaniesValues():
 @app.route("/company/value/get/<id_company_>")
 def getCompanyValueById(id_company_):
     try:
-        company=model.CompanyValue.query.filter_by(id_company=id_company_).first()
+        company=companyValue.CompanyValue.query.filter_by(id_company=id_company_).first()
         return jsonify(company.serialize())
     except Exception as e:
 	    return("Ops, something went wrong, please try again later !")
@@ -254,7 +254,7 @@ def deleteCompanyValue():
     if not id_:
         return "Please, inform all required informations to continue"
     try:
-        companyValue=model.CompanyValue.query.filter_by(id=id_).first()
+        companyValue=companyValue.CompanyValue.query.filter_by(id=id_).first()
         db.session.delete(companyValue)
         db.session.commit()
         return "Company value removed successfully"
@@ -290,7 +290,7 @@ def getCompanyPointsFromAPI(companyName):
 
 def checkIfCompanyExistsById(idCompany):
     try:
-        company=model.Company.query.filter_by(id=idCompany).first()
+        company=company.Company.query.filter_by(id=idCompany).first()
         if company is None:
             return False
         return True
@@ -299,7 +299,7 @@ def checkIfCompanyExistsById(idCompany):
 
 def checkIfCompanyExistsByFinancialCode(financialCode):
     try:
-        company=model.Company.query.filter_by(financial_code=financialCode).first()
+        company=company.Company.query.filter_by(financial_code=financialCode).first()
         if company is None:
             return False
         return True
